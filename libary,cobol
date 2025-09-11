@@ -171,7 +171,9 @@
              WHEN 4  PERFORM RETURN-BOOK
              WHEN 5  PERFORM BOOK-LIST
              WHEN 7  PERFORM  EXIT-PROGRAM
-      *>        WHEN OTHER DISPLAY "Invalid choice."
+             WHEN OTHER DISPLAY "Invalid choice " 
+             ",Press Enter To Try Again !"
+             ACCEPT DUMMY
            END-EVALUATE.
       *>  1. Login
        LOGIN.
@@ -353,6 +355,8 @@
 
                 IF WS-FOUND-BORROW = "N"
                    DISPLAY "Not found outstanding borrow for this ISBN."
+                   DISPLAY "Press Enter to continue !"
+                   ACCEPT DUMMY 
                    EXIT PARAGRAPH
                 END-IF
 
@@ -488,6 +492,11 @@
            OPEN INPUT BOOK-FILE
            MOVE 0 TO WS-BOOK-COUNT
            MOVE "N" TO WS-EOF-FLAG
+           DISPLAY "==============================================="
+           "=========================================================="
+           "==================================="
+           DISPLAY "                                               "
+           "             BOOK LIST                           "
            
            DISPLAY "==============================================="
            "=========================================================="
@@ -540,7 +549,7 @@
            DISPLAY "Total books : " NOZERO-WS-BOOK-COUNT
            CLOSE BOOK-FILE.
            DISPLAY " ".
-           DISPLAY "Go To Main Menu --> Enter "
+           DISPLAY "Press Enter to go Main Menu ! "
            ACCEPT DUMMY .
        EXIT-PROGRAM.
            STOP RUN.
