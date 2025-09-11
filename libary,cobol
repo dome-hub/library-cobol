@@ -52,12 +52,11 @@
            05 BORROW-DATE-R     PIC X(21).
       *>      05 DUE-DATE-R        PIC X(10).
            05 RETURN-DATE-R     PIC X(21).
-           05 DAYS-LATE         PIC 9(5).
-            05 FINE-AMOUNT      PIC 9(7).
+      *>      05 DAYS-LATE         PIC 9(5).
+      *>       05 FINE-AMOUNT      PIC 9(7).
 
        WORKING-STORAGE SECTION.
-       01 FS-RETURN PIC XX VALUE SPACES.
-       
+       01  DUMMY PIC X.
        01  PROG-CONTROL.
            05 WS-CHOICE PIC 9.
 
@@ -105,7 +104,7 @@
            05 RETURN-HOUR PIC 9(2).
            05 RETURN-MINUTE PIC 9(2).
            05 RETURN-SECOND PIC 9(2).
-           05 NOW-RETURN   PIC X(17).
+           05 NOW-RETURN   PIC X(21).
 
        01  WS-DATE-CALC.
            05 BRW-YYYY        PIC 9(4).
@@ -117,14 +116,27 @@
            05 DAYS-USED       PIC 9(5).
            05 LATE-DAYS       PIC 9(5).
            05 FINE-BAHT       PIC 9(7).
-
-
+       
+       01  WS-BOOK-DISPLAY-REC.
+           05 WS-NO         PIC Z(2).
+           05 WS-ISBN       PIC X(17).
+           05 WS-NAME       PIC X(55).
+           05 WS-TITLE      PIC X(55).
+           05 WS-AUTHOR     PIC X(27).
+           05 WS-CALLNO     PIC X(25).
+           05 WS-CATEGORY   PIC X(22).
+           05 WS-STATUS     PIC X.
+           05 STRING-BOOK-LIST  PIC X(150).
+           
+       01  WS-BOOK-COUNT    PIC 9(3) VALUE 0.
+       01  NOZERO-WS-BOOK-COUNT PIC ZZ .
+       
        01  WS-FILE-STATUS        PIC XX     VALUE SPACES.
 
        77  SEQ-NUMBER    PIC 9(9) VALUE 1.
        77  TMP-ID             PIC 9(10).
        77  DAILY-FINE         PIC 9(2) VALUE 05.
-       
+
        77  RTN-SEQ-NUM      PIC 9(10) VALUE 0.
        77  RTN-TMP-ID       PIC 9(10).
 
@@ -157,6 +169,7 @@
              WHEN 2  PERFORM REGISTER
              WHEN 3  PERFORM BORROW-BOOK
              WHEN 4  PERFORM RETURN-BOOK
+             WHEN 5  PERFORM BOOK-LIST
              WHEN 7  PERFORM  EXIT-PROGRAM
       *>        WHEN OTHER DISPLAY "Invalid choice."
            END-EVALUATE.
@@ -323,7 +336,7 @@
 
                 MOVE "N" TO WS-FOUND-BORROW
                 MOVE "N" TO WS-EOF-FLAG
-
+           
                 PERFORM UNTIL WS-END-OF-FILE OR WS-FOUND-BORROW = "Y"
                     READ BORROW-FILE
                         AT END MOVE "Y" TO WS-EOF-FLAG
@@ -331,7 +344,7 @@
                             IF RETURN-ISBN     = BORROW-BOOK-ISBN(1:17)
                                AND RETURN-DATE (1:4) = "NULL"
                     MOVE "Y"  TO WS-FOUND-BORROW
-                    
+
                 END-IF
                     END-READ
                 END-PERFORM
@@ -365,45 +378,46 @@
               RETURN-MINUTE DELIMITED BY SIZE
               ":" DELIMITED BY SIZE
               RETURN-SECOND DELIMITED BY SIZE
-              INTO RETURN-DATE-R
+              INTO NOW-RETURN
            END-STRING.
                
       *>      สร้าง Rxxxxx
            MOVE 0 TO RTN-SEQ-NUM
-           
+
            OPEN INPUT RETURN-FILE
-           
-           MOVE "N" TO WS-EOF-FLAG   
-           PERFORM UNTIL WS-END-OF-FILE 
+
+           MOVE "N" TO WS-EOF-FLAG
+           PERFORM UNTIL WS-END-OF-FILE
                READ RETURN-FILE
                    AT END MOVE "Y" TO WS-EOF-FLAG
-                   NOT AT END 
-                   MOVE RETURN-ID-FILE(2:10) TO RTN-TMP-ID 
+                   NOT AT END
+                   MOVE RETURN-ID-FILE(2:10) TO RTN-TMP-ID
                    COMPUTE RTN-SEQ-NUM = FUNCTION NUMVAL(RTN-TMP-ID)
                END-READ
            END-PERFORM
            CLOSE RETURN-FILE
-               
-           ADD 1 TO RTN-SEQ-NUM     
+
+           ADD 1 TO RTN-SEQ-NUM
            MOVE RTN-SEQ-NUM TO RTN-TMP-ID *>เติมตัวเลขด้านหลัง
            MOVE "R"        TO RETURN-ID(1:1)
            MOVE RTN-TMP-ID TO RETURN-ID(2:10).
-           
+
            OPEN EXTEND RETURN-FILE
-           
+
            MOVE RETURN-ID               TO RETURN-ID-FILE
            MOVE BORROW-ID-FILE          TO BORROW-ID-R
            MOVE BORROW-MEM-ID           TO RETURN-MEM-ID
            MOVE BORROW-BOOK-ISBN        TO RETURN-BOOK-ISBN
            MOVE BORROW-DATE             TO BORROW-DATE-R
+           MOVE NOW-RETURN              TO RETURN-DATE-R
       *>      MOVE SPACES                  TO DUE-DATE-R
-           
-           MOVE ZERO                    TO DAYS-LATE
-           MOVE ZERO                    TO FINE-AMOUNT
-           
+
+      *>      MOVE ZERO                    TO DAYS-LATE
+      *>      MOVE ZERO                    TO FINE-AMOUNT
+
            WRITE RETURN-FILE-REC
            CLOSE RETURN-FILE
-           
+
            DISPLAY "Return recorded."
            DISPLAY "Return ID : " RETURN-ID
            DISPLAY "Borrow ID : " BORROW-ID-R
@@ -411,7 +425,7 @@
            DISPLAY "ISBN      : " RETURN-BOOK-ISBN
            DISPLAY "Borrowed  : " BORROW-DATE-R
            DISPLAY "Returned  : " RETURN-DATE-R.
-           
+
        ADD-BORROW.
            MOVE FUNCTION CURRENT-DATE TO BORROW-CURRENT-DATE-TIME.
            MOVE BORROW-CURRENT-DATE-TIME(1:4) TO BORROW-YEAR
@@ -470,7 +484,64 @@
            DISPLAY "At "BORROW-DATE
            DISPLAY "you borrow successed!!"
            CLOSE BORROW-FILE.
+       BOOK-LIST.
+           OPEN INPUT BOOK-FILE
+           MOVE 0 TO WS-BOOK-COUNT
+           MOVE "N" TO WS-EOF-FLAG
+           
+           DISPLAY "==============================================="
+           "=========================================================="
+           "==================================="
+           DISPLAY "No ISBN                  Title                   "
+           "                            Author "
+           "                     Call Number   "                    
+           "     Category Status"
+           DISPLAY "-----------------------------------------------"
+           "----------------------------------------------------------"
+           "-----------------------------------"
+           
+           PERFORM UNTIL WS-END-OF-FILE
+               READ BOOK-FILE
+                   AT END SET WS-END-OF-FILE TO TRUE 
+                   NOT AT END ADD 1 TO WS-BOOK-COUNT
 
+                       MOVE WS-BOOK-COUNT  TO WS-NO
+                       MOVE BOOK-ISBN      TO WS-ISBN
+                       MOVE BOOK-NAME      TO WS-TITLE
+                       MOVE BOOK-AUTHOR    TO WS-AUTHOR
+                       MOVE BOOK-CALL-NUM  TO WS-CALLNO
+                       MOVE BOOK-CATEGORY  TO WS-CATEGORY
+                       MOVE BOOK-STATUS    TO WS-STATUS
+                    STRING WS-NO DELIMITED BY SIZE
+                    
+              " " DELIMITED BY SIZE
+              WS-ISBN DELIMITED BY SIZE
+              " " DELIMITED BY SIZE
+              WS-TITLE DELIMITED BY SIZE
+              " " DELIMITED BY SIZE
+              WS-AUTHOR DELIMITED BY SIZE
+              " " DELIMITED BY SIZE
+              WS-CALLNO DELIMITED BY SIZE
+              " " DELIMITED BY SIZE
+              WS-CATEGORY DELIMITED BY SIZE
+              " " DELIMITED BY SIZE
+              WS-STATUS DELIMITED BY SIZE
+              INTO STRING-BOOK-LIST
+           END-STRING     
+                   DISPLAY STRING-BOOK-LIST     
+               END-READ
+                    
+           END-PERFORM 
+           MOVE WS-BOOK-COUNT TO NOZERO-WS-BOOK-COUNT
+           DISPLAY " "
+           DISPLAY "==============================================="
+           "=========================================================="
+           "==================================="
+           DISPLAY "Total books : " NOZERO-WS-BOOK-COUNT
+           CLOSE BOOK-FILE.
+           DISPLAY " ".
+           DISPLAY "Go To Main Menu --> Enter "
+           ACCEPT DUMMY .
        EXIT-PROGRAM.
            STOP RUN.
 
