@@ -116,7 +116,7 @@
            05 DAYS-USED       PIC 9(5).
            05 LATE-DAYS       PIC 9(5).
            05 FINE-BAHT       PIC 9(7).
-       
+
        01  WS-BOOK-DISPLAY-REC.
            05 WS-NO         PIC Z(2).
            05 WS-ISBN       PIC X(17).
@@ -126,11 +126,11 @@
            05 WS-CALLNO     PIC X(25).
            05 WS-CATEGORY   PIC X(22).
            05 WS-STATUS     PIC X.
-           05 STRING-BOOK-LIST  PIC X(150).
-           
+           05 STRING-BOOK-LIST  PIC X(170).
+
        01  WS-BOOK-COUNT    PIC 9(3) VALUE 0.
        01  NOZERO-WS-BOOK-COUNT PIC ZZ .
-       
+
        01  WS-FILE-STATUS        PIC XX     VALUE SPACES.
 
        77  SEQ-NUMBER    PIC 9(9) VALUE 1.
@@ -171,7 +171,7 @@
              WHEN 4  PERFORM RETURN-BOOK
              WHEN 5  PERFORM BOOK-LIST
              WHEN 7  PERFORM  EXIT-PROGRAM
-             WHEN OTHER DISPLAY "Invalid choice " 
+             WHEN OTHER DISPLAY "Invalid choice "
              ",Press Enter To Try Again !"
              ACCEPT DUMMY
            END-EVALUATE.
@@ -338,16 +338,24 @@
 
                 MOVE "N" TO WS-FOUND-BORROW
                 MOVE "N" TO WS-EOF-FLAG
-           
+
                 PERFORM UNTIL WS-END-OF-FILE OR WS-FOUND-BORROW = "Y"
                     READ BORROW-FILE
                         AT END MOVE "Y" TO WS-EOF-FLAG
                         NOT AT END
-                            IF RETURN-ISBN     = BORROW-BOOK-ISBN(1:17)
-                               AND RETURN-DATE (1:4) = "NULL"
-                    MOVE "Y"  TO WS-FOUND-BORROW
-
-                END-IF
+                     IF RETURN-ISBN= BORROW-BOOK-ISBN(1:17)   
+                        IF USER-MEM-ID NOT = BORROW-MEM-ID
+                         DISPLAY "This Borrow belongs to another member"
+                          ELSE 
+                               IF RETURN-DATE (1:4) = "NULL"   
+                                  MOVE "Y"  TO WS-FOUND-BORROW
+                               ELSE 
+                                   DISPLAY " This Borrow record was "
+                                   "already return"
+ 
+                               END-IF   
+                         END-IF
+                     END-IF
                     END-READ
                 END-PERFORM
 
@@ -356,7 +364,7 @@
                 IF WS-FOUND-BORROW = "N"
                    DISPLAY "Not found outstanding borrow for this ISBN."
                    DISPLAY "Press Enter to continue !"
-                   ACCEPT DUMMY 
+                   ACCEPT DUMMY
                    EXIT PARAGRAPH
                 END-IF
 
@@ -384,7 +392,7 @@
               RETURN-SECOND DELIMITED BY SIZE
               INTO NOW-RETURN
            END-STRING.
-               
+
       *>      สร้าง Rxxxxx
            MOVE 0 TO RTN-SEQ-NUM
 
@@ -494,24 +502,24 @@
            MOVE "N" TO WS-EOF-FLAG
            DISPLAY "==============================================="
            "=========================================================="
-           "==================================="
+           "============================================="
            DISPLAY "                                               "
            "             BOOK LIST                           "
-           
+
            DISPLAY "==============================================="
            "=========================================================="
-           "==================================="
+           "============================================="
            DISPLAY "No ISBN                  Title                   "
            "                            Author "
-           "                     Call Number   "                    
-           "     Category Status"
-           DISPLAY "-----------------------------------------------"
-           "----------------------------------------------------------"
-           "-----------------------------------"
-           
+           "                     Call Number   "
+           "     Category            Status"
+           DISPLAY "==============================================="
+           "=========================================================="
+           "============================================="
+
            PERFORM UNTIL WS-END-OF-FILE
                READ BOOK-FILE
-                   AT END SET WS-END-OF-FILE TO TRUE 
+                   AT END SET WS-END-OF-FILE TO TRUE
                    NOT AT END ADD 1 TO WS-BOOK-COUNT
 
                        MOVE WS-BOOK-COUNT  TO WS-NO
@@ -521,8 +529,9 @@
                        MOVE BOOK-CALL-NUM  TO WS-CALLNO
                        MOVE BOOK-CATEGORY  TO WS-CATEGORY
                        MOVE BOOK-STATUS    TO WS-STATUS
-                    STRING WS-NO DELIMITED BY SIZE
-                    
+              
+              STRING 
+              WS-NO DELIMITED BY SIZE
               " " DELIMITED BY SIZE
               WS-ISBN DELIMITED BY SIZE
               " " DELIMITED BY SIZE
@@ -536,16 +545,16 @@
               " " DELIMITED BY SIZE
               WS-STATUS DELIMITED BY SIZE
               INTO STRING-BOOK-LIST
-           END-STRING     
-                   DISPLAY STRING-BOOK-LIST     
+           END-STRING
+                   DISPLAY STRING-BOOK-LIST
                END-READ
-                    
-           END-PERFORM 
+
+           END-PERFORM
            MOVE WS-BOOK-COUNT TO NOZERO-WS-BOOK-COUNT
            DISPLAY " "
            DISPLAY "==============================================="
            "=========================================================="
-           "==================================="
+           "============================================="
            DISPLAY "Total books : " NOZERO-WS-BOOK-COUNT
            CLOSE BOOK-FILE.
            DISPLAY " ".
