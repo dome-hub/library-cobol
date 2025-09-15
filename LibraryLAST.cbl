@@ -439,7 +439,7 @@
                END-READ
            END-PERFORM
            CLOSE BORROW-FILE.
-      *>      á»Å§ÇÑ¹·Õè
+      *>      å³„è„“èŒ„ç‹—ç §
            COMPUTE INT-BRW = FUNCTION INTEGER-OF-DATE
                  (BRW-YYYY * 10000 + BRW-MM * 100 + BRW-DD)
            MOVE FUNCTION CURRENT-DATE TO RETURN-CURRENT-DATE-TIME
@@ -457,10 +457,10 @@
 
       *> Get current date and format it properly
        GET-CURRENT-DATE.
-           *> ´Ö§ÇÑ¹·ÕèáÅÐàÇÅÒ»Ñ¨¨ØºÑ¹
+           *> ç²—îž¥åŽ‹æ°›æ ³åˆ¤å—²ä¹“è°ŽÃ¨ç¾åŽ‹
            MOVE FUNCTION CURRENT-DATE TO CURRENT-DATE-TIME.
 
-           *> áÂ¡¢éÍÁÙÅÇÑ¹·ÕèáÅÐàÇÅÒ
+           *> å´§ã€æ©¥ä¸´å¾˜åŽ‹æ°›æ ³åˆ¤å—²ä¹“
            MOVE CURRENT-DATE-TIME(1:4) TO CURRENT-YEAR
            MOVE CURRENT-DATE-TIME(5:2) TO CURRENT-MONTH
            MOVE CURRENT-DATE-TIME(7:2) TO CURRENT-DAY
@@ -468,7 +468,7 @@
            MOVE CURRENT-DATE-TIME(11:2) TO CURRENT-MINUTE
            MOVE CURRENT-DATE-TIME(13:2) TO CURRENT-SECOND.
 
-           *> ¨Ñ´ÃÙ»áººÇÑ¹·ÕèÂ×Á (YYYY-MM-DD HH:MM:SS)
+           *> ã„‘ç–µå€©å²·å‘µåŽ‹æ°›æªç¢ (YYYY-MM-DD HH:MM:SS)
            STRING CURRENT-YEAR DELIMITED BY SIZE
               "-" DELIMITED BY SIZE
               CURRENT-MONTH DELIMITED BY SIZE
@@ -736,7 +736,7 @@
 
       *>  Add borrow record
        ADD-BORROW.
-       *> ´Ö§ÇÑ¹·ÕèáÅÐàÇÅÒ»Ñ¨¨ØºÑ¹
+       *> ç²—îž¥åŽ‹æ°›æ ³åˆ¤å—²ä¹“è°ŽÃ¨ç¾åŽ‹
        PERFORM GET-CURRENT-DATE.
 
        *> Generate new borrow ID
@@ -761,7 +761,7 @@
            MOVE PREFIX-BORROW TO BORROW-ID(1:1)
            MOVE TMP-ID TO BORROW-ID(2:10)
 
-      *> Convert borrow date into integer days (ãªéÇÑ¹·Õè»Ñ¨¨ØºÑ¹)
+      *> Convert borrow date into integer days (æ‚›æ¦åŽ‹æ°›æŒç©´ã„˜è²‰ï¿½)
            COMPUTE CURRENT-DATE-INT =
                FUNCTION INTEGER-OF-DATE(CURRENT-YEAR * 10000
                                         + CURRENT-MONTH * 100
@@ -786,14 +786,14 @@
                   RETURN-MONTH-PRE DELIMITED BY SIZE
                   "-" DELIMITED BY SIZE
                   RETURN-DAY-PRE DELIMITED BY SIZE
-                  INTO RETURN-DATE      *> à¡çºÇÑ¹·Õè¤Ãº¡ÓË¹´
+                  INTO RETURN-DATE      *> å”·ç»¾èŒ„ç‹—ç §ã£éª¸é“€å‹¾
            END-STRING
 
            MOVE BORROW-ID TO BORROW-ID-FILE
            MOVE USER-MEM-ID TO BORROW-MEM-ID
            MOVE BORROW-ISBN TO BORROW-BOOK-ISBN
            MOVE BORROW-DATE-FORMATTED TO BORROW-DATE
-      *> RETURN-DATE ¨Ðà»ç¹ÇÑ¹·Õè¤Ãº¡ÓË¹´¤×¹ äÁèãªè "NULL"
+      *> RETURN-DATE ã„å—·ç»»èŒ„ç‹—ç §ã£éª¸é“€å‹¾ã·ï¿½ æ·žæ¡¡î‡ "NULL"
 
            OPEN EXTEND BORROW-FILE
            WRITE BORROW-FILE-REC
@@ -918,7 +918,7 @@
                            IF BORROW-MEM-ID = USER-MEM-ID
                                ADD 1 TO WS-HISTORY-COUNTER
 
-                               *> µÃÇ¨ÊÍºã¹ä¿Åì RETURN ÇèÒË¹Ñ§Ê×ÍàÅèÁ¹Õé¶Ù¡¤×¹áÅéÇËÃ×ÍÂÑ§
+                               *> å¾—è¿é‡Šæ’é€›é¢—ï¿½ RETURN æ°°å®œå¯¡îž¨æ·„å—¯æž‡æ‹æ§Žä½Ÿã·è´¯ç °æ’¬ç±³åå­¦
                                PERFORM CHECK-IF-RETURNED
 
                                IF WS-BOOK-RETURNED = "Y"
@@ -936,7 +936,7 @@
 
                CLOSE BORROW-FILE
 
-               *> áÊ´§¨Ó¹Ç¹ÃÒÂ¡ÒÃÂ×Á
+               *> å´¾æ£ã„“éª¨å§‘è¡£âˆ«å¯ç¢
                IF WS-HISTORY-COUNTER = 0
                    DISPLAY "No borrow records found."
                END-IF
@@ -970,7 +970,7 @@
 
                CLOSE RETURN-FILE
 
-               *> áÊ´§¨Ó¹Ç¹ÃÒÂ¡ÒÃ¤×¹
+               *> å´¾æ£ã„“éª¨å§‘è¡£âˆ«ç›²å 
                IF RTN-SEQ-NUM = 0
                    DISPLAY "No return records found."
                END-IF
@@ -991,16 +991,16 @@
        CHECK-IF-RETURNED.
            MOVE "N" TO WS-BOOK-RETURNED.
 
-           *> à»Ô´ä¿Åì RETURN à¾×èÍµÃÇ¨ÊÍº
+           *> å—·æºæ·‡æ¾Ž RETURN å—‘é˜»å·ä»¬ã„Šç§ƒ
            OPEN INPUT RETURN-FILE.
 
-           *> Ç¹ÅÙ»ÍèÒ¹ä¿Åì RETURN ·Ñé§ËÁ´
+           *> æžªåˆ¨ç…Œæž°é€›é¢—ï¿½ RETURN è´¹æ¤è‚†ï¿½
            PERFORM UNTIL WS-END-OF-FILE OR WS-BOOK-RETURNED = "Y"
                READ RETURN-FILE
                    AT END
                        MOVE "Y" TO WS-EOF-FLAG
                    NOT AT END
-                       *> à»ÃÕÂºà·ÕÂº Borrow ID ÇèÒµÃ§¡Ñ¹ËÃ×ÍäÁè
+                       *> å—·è°œæ½žå–¾ç« ï¿½ Borrow ID æ°°ä¸šèŽ½âŠ™é¡¾ç±³å¼¯å‡Œ
                        IF BORROW-ID-R(1:15) = BORROW-ID-FILE(1:15)
                            MOVE "Y" TO WS-BOOK-RETURNED
                        END-IF
@@ -1009,7 +1009,7 @@
 
            CLOSE RETURN-FILE.
 
-           *> Reset EOF flag ËÅÑ§¨Ò¡ãªé§Ò¹ CHECK-IF-RETURNED
+           *> Reset EOF flag ä¼ºå­¦ã„’Â°îˆÐ±ï¿½ CHECK-IF-RETURNED
            MOVE "N" TO WS-EOF-FLAG.
 
       *>  exit program
