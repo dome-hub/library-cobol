@@ -4,4 +4,7 @@ MEMBER ID       |  MEMBER STUDENT ID  |	          MEMBER NAME	          |  MEMBE
 20066216003217    6621600321             Naphatsorn Wattanon                0000000000
 20066216001439    6621600143             Kunakorn Kanlayawutipong           0000000000
 20066216047002    6621604700             Asvanee Arong                      0802365862
-20066216007008    6621600700             a                                  a
+20066216004117    6621600411             Thitiphan                          0123456789
+20068216514519    6821651451             Poramet                            1234567890200978-0-316-4    978-0-316-             a                                  a
+2007         7    7                      7                                  7
+200a         0    a                      a                                  a
